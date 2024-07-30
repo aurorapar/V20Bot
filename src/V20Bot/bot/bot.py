@@ -35,7 +35,7 @@ class DiscordBot(discord.Client):
         await self.user.edit(username=BOT_USERNAME)
         for guild in self.guilds:
             member = await self.get_self_member(guild)
-            await message.send_message(member, f'{self.user.name} as come out of torpor.')
+            await message.send_message(member, f'{self.user.name} has come out of torpor.')
 
     async def get_self_member(self, guild: discord.Guild):
         member = await guild.query_members(user_ids=[self.user.id])
