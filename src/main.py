@@ -10,7 +10,6 @@ def main(bot_token):
         if not bot_token:
             if 'DISCORD_BOT_TOKEN' in os.environ.keys():
                 bot_token = os.environ['DISCORD_BOT_TOKEN']
-                print(bot_token)
         if not bot_token:
             bot_token = input("Please enter your bot token: ")
 
