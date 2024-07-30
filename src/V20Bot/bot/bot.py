@@ -1,3 +1,4 @@
+import sys
 import traceback
 from typing import Optional, Any
 
@@ -5,9 +6,7 @@ import discord
 from discord import app_commands
 
 from .event_handlers import message, commands
-from ..settings.settings import GUILD_IDS
-
-MY_GUILDS = [discord.Object(id=GUILD_ID) for GUILD_ID in GUILD_IDS]
+from ..settings.settings import BOT_USERNAME
 
 
 class DiscordBot(discord.Client):
@@ -17,30 +16,44 @@ class DiscordBot(discord.Client):
         self.tree = app_commands.CommandTree(self)
 
     def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
-        print('An error occurred!')
-        print(traceback.format_exc())
-
-    async def setup_hook(self):
-        # This copies the global commands over to your guild.
-        for guild in MY_GUILDS:
-            self.tree.copy_global_to(guild=guild)
-            await self.tree.sync(guild=guild)
+        error = sys.exc_info()
+        error_message = error[1]
+        trace = error[2]
+        print(event_method)
+        print(error_message)
+        print(traceback.print_tb(trace))
 
     async def on_message(self, discord_message):
-        message.handle_message(discord_message)
+        print("Syncing tree")
+        synced = await self.tree.sync()
+        print(f"Tree synced!")
+        print(synced)
+        for x in dir(synced[0]):
+            print(f"{x}={getattr(synced[0], x)}")
 
-    async def on_guild_join(self, guild):
-        print('Joined guild')
-        await message.send_message(self, 'Testing join message')
+    async def on_ready(self):
+        await self.user.edit(username=BOT_USERNAME)
+        for guild in self.guilds:
+            member = await self.get_self_member(guild)
+            await message.send_message(member, f'{self.user.name} as come out of torpor.')
+
+    async def get_self_member(self, guild: discord.Guild):
+        member = await guild.query_members(user_ids=[self.user.id])
+        if not member:
+            return None
+        return member[0]
 
 
 intents = discord.Intents.default()
 intents.messages = True
 intents.guilds = True
+intents.presences = True
+intents.members = True
 discord_bot = DiscordBot(intents=intents)
 
 
 @discord_bot.tree.command()
+@app_commands.allowed_contexts(guilds=True)
 @app_commands.describe(
     difficulty='The difficulty of the role (set by ST)',
     dicepool='The total number of dice you have in your dice pool, including auto-successes',
@@ -50,10 +63,16 @@ discord_bot = DiscordBot(intents=intents)
 )
 async def roll(interaction: discord.Interaction, difficulty: int, dicepool: int, autosuccesses: Optional[int] = 0,
               specialized: Optional[bool] = False, willpowerused: Optional[bool] = False):
-    try:
-        return await commands.handle_roll(interaction, difficulty, dicepool, autosuccesses, specialized, willpowerused)
-    except Exception as e:
-        print(e)
-        print(traceback.format_exc())
-        await interaction.response.send_message('Sorry, the bot broke :\\')
+    return await commands.handle_roll(interaction, difficulty, dicepool, autosuccesses, specialized, willpowerused)
+
+
+@discord_bot.tree.command()
+@app_commands.allowed_contexts(guilds=True)
+@app_commands.checks.has_permissions(manage_roles=True)
+@app_commands.describe(
+    channel='The channel you want to allow the bot in'
+)
+async def setbotchannel(interaction: discord.Interaction, channel: discord.TextChannel):
+    member = await discord_bot.get_self_member(interaction.guild)
+    await commands.set_bot_channel(member, interaction, channel)
 

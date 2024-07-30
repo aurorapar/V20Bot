@@ -59,3 +59,29 @@ async def handle_roll(interaction: discord.Interaction, difficulty: int, dice_po
         response += f'You had no successes!\nRolls: ' + ' '.join(results)
         await interaction.response.send_message(response)
         return
+
+
+async def set_bot_channel(member: discord.Member, interaction: discord.Interaction, channel: discord.TextChannel):
+
+    user = interaction.user
+    if not user.guild_permissions.manage_roles:
+        return
+
+    guild = interaction.guild
+
+    for guild_channel in guild.channels:
+        if guild_channel.id != channel.id:
+
+            overwrite = discord.PermissionOverwrite()
+            overwrite.send_messages = False
+            overwrite.use_application_commands = False
+            guild_channel.set_permissions(member, overwrite=overwrite)
+
+        else:
+            overwrite = discord.PermissionOverwrite()
+            overwrite.send_messages = True
+            overwrite.use_application_commands = True
+            guild_channel.set_permissions(member, overwrite=overwrite)
+            await guild_channel.send(f"I have been set to this channel by {interaction.user.mention}")
+
+
