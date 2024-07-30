@@ -1,0 +1,61 @@
+from typing import Optional
+
+import discord
+
+from ...helpers.dice_functions import rolld10
+
+
+async def handle_roll(interaction: discord.Interaction, difficulty: int, dice_pool: int, auto_successes: Optional[int] = 0,
+              specialized: Optional[bool] = False, willpower_used: Optional[bool] = False):
+
+    mention_string = interaction.user.mention
+
+    if difficulty not in range(1,11):
+        return await interaction.response.send_message(f"{mention_string} The difficulty must be between 1 and 10")
+
+    if dice_pool < 1:
+        return await interaction.response.send_message(f"{mention_string} The dice pool must have at least 1 die")
+
+
+    response = (f'{mention_string} started a challenge:'
+                          f'\n\tDifficulty: {difficulty}'
+                          f'\n\tDice Pool: {dice_pool}'
+                          f'\n\tAuto Successes: {auto_successes}'
+                          f'\n\tWillpower Used: {"Yes" if willpower_used else "No"}'
+                          f'\n\tSpecialty: {"Yes" if specialized else "No"}\n')
+
+    results = [difficulty for success in range(auto_successes)] + [rolld10() for die in range(dice_pool)]
+    results.sort()
+    explosions = 0
+    if specialized:
+        explosions = len([result for result in results if result == 10])
+    failures = len([result for result in results if result == 1])
+    successes = len([result for result in results if result >= difficulty])
+
+    successes_after_failures = successes - failures + explosions
+
+    results = [str(x) for x in results]
+
+    if failures and failures > (successes + explosions) and not willpower_used:
+        response += f'You botched the roll!\nRolls: ' + ' '.join(results)
+        await interaction.response.send_message(response)
+        return
+
+    if successes_after_failures < 1 and willpower_used:
+        response += f'You rolled only 1 success using Willpower\nRolls: ' + ' '.join(results)
+        await interaction.response.send_message(response)
+        return
+
+    elif successes_after_failures > 0:
+        successes_after_failures += 1 if willpower_used else 0
+        response += f'You rolled {successes_after_failures} total successes!\n'
+        if specialized:
+            response += f'You had {explosions} additional successes due to a specialty.\n'
+        response += f'Rolls: ' + ' '.join(results)
+        await interaction.response.send_message(response)
+        return
+
+    elif successes_after_failures < 1 and failures < 1:
+        response += f'You had no successes!\nRolls: ' + ' '.join(results)
+        await interaction.response.send_message(response)
+        return
