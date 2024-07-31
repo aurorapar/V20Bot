@@ -54,7 +54,7 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
     successes = len([result for result in results if result >= difficulty]) + explosions
 
     willpower_needed = botches > successes and willpower_used
-    successes = max(int(willpower_used), successes - botches + explosions)
+    successes = max(int(willpower_used), successes - botches)
 
     results = [number_to_emoji(x) for x in results]
 
