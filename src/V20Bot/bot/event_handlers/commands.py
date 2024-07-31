@@ -53,10 +53,8 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
     botches = len([result for result in results if result == 1])
     successes = len([result for result in results if result >= difficulty]) + explosions
 
-    willpower_needed = False
-    if botches and successes < 1:
-        willpower_needed = True
-        successes = 1
+    willpower_needed = botches > successes and willpower_used
+    successes = max(int(willpower_used), successes - botches + explosions)
 
     results = [number_to_emoji(x) for x in results]
 
@@ -65,18 +63,18 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
         await interaction.response.send_message(response)
         return
 
-    if willpower_needed:
-        response += f'{name} has {number_to_emoji(int(willpower_used))} success thanks to Willpower\nRolls: ' + '  '.join(results)
+    if willpower_needed and successes > 0:
+        response += f'{name} has {number_to_emoji(successes)} success thanks to Willpower\nRolls: ' + '  '.join(results)
         await interaction.response.send_message(response)
         return
 
-    if not successes:
+    if successes < 1:
         response += f'{name} has no successes!\nRolls: ' + '  '.join(results)
         await interaction.response.send_message(response)
         return
 
-    if successes:
-        response += f'{name} rolled {number_to_emoji(successes + int(willpower_used))} total successes!'
+    if successes > 0:
+        response += f'{name} rolled {number_to_emoji(successes)} total successes!'
         if specialized:
             response += f' ({number_to_emoji(explosions)} additional successes due to a specialty)'
         response += f'\nRolls: ' + '  '.join(results)
