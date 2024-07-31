@@ -12,10 +12,6 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
 
     name = interaction.user.display_name
 
-    if not difficulty:
-        await interaction.response.send_message(ephemeral=True, content='You didn\'t enter a difficulty')
-        return
-
     if dice_pool < 1:
         await interaction.response.send_message(ephemeral=True, content='Your dice pool can\'t be negative')
         return
@@ -25,7 +21,7 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
                                                 content='Your number of auto-successes can\'t be negative')
         return
 
-    if difficulty not in range(0, 11):
+    if difficulty not in range(1, 11):
         await interaction.response.send_message(ephemeral=True, content='The difficulty must be between 1 and 10')
         return
 
