@@ -25,7 +25,8 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
         await interaction.response.send_message(ephemeral=True, content='The difficulty must be between 1 and 10')
         return
 
-    results = [difficulty for _ in range(auto_successes)] + [rolld10() for _ in range(max(0, dice_pool - auto_successes))]
+    results = ([difficulty for _ in range(auto_successes)] +
+               [rolld10() for _ in range(max(0, dice_pool - auto_successes))])
     results.sort()
 
     mention_string = interaction.user.mention
@@ -44,7 +45,8 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
     response = f'{mention_string} wants to challenge {target.mention}!' if target else \
         f'{mention_string} has started a challenge!'
 
-    response += f'\n\t{name}\'s Dice Pool:  {number_to_emoji(dice_pool)}   Difficulty:   {number_to_emoji(difficulty)}\n'
+    response += f'\n\t{name}\'s Dice Pool:  {number_to_emoji(dice_pool)}   '
+    response += f'Difficulty:   {number_to_emoji(difficulty)}\n'
     response += extra_messages if extra_messages else ''
 
     explosions = 0
@@ -89,35 +91,3 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
     response += f'\ntarget: {"None" if not target else target.display_name}'
     response += f'\nrolls: ' + '  '.join(results)
     await interaction.response.send_message(response)
-
-
-async def set_bot_channel(member: discord.Member, interaction: discord.Interaction, channel: discord.TextChannel):
-
-    user = interaction.user
-    if not user.guild_permissions.manage_roles:
-        return
-
-    if not member.guild_permissions.manage_roles:
-        await interaction.response.send_message(ephemeral=True, content="The bot does not have Manage Role permission.")
-        return
-
-    # return await disable(interaction)
-
-    guild = interaction.guild
-
-    overwrite = discord.PermissionOverwrite()
-    overwrite.send_messages = True
-    overwrite.use_application_commands = True
-    await channel.set_permissions(member, overwrite=overwrite)
-    await channel.send(f"I have been set to this channel by {interaction.user.mention}")
-
-    overwrite = discord.PermissionOverwrite()
-    overwrite.send_messages = False
-    overwrite.use_application_commands = False
-    for guild_channel in guild.channels:
-        if guild_channel.id != channel.id:
-            await guild_channel.set_permissions(member, overwrite=overwrite)
-
-
-async def disable(interaction):
-    return await interaction.response.send_message(ephemeral=True, content="This command has been disabled.")

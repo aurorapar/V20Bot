@@ -1,8 +1,8 @@
 import os
 import traceback
 
-from V20Bot.settings.settings import BOT_TOKEN
-from V20Bot.bot.bot import discord_bot
+from V20Bot.settings import BOT_TOKEN
+from V20Bot.bot import discord_bot
 
 
 def main(bot_token):
