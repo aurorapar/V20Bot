@@ -4,8 +4,9 @@ from typing import Optional, Any
 import discord
 from discord import app_commands
 
-from .event_handlers import message, commands
-from ..settings.settings import BOT_USERNAME, TESTING, RESYNC
+from ..bot import event_handlers
+from ..character import Attribute, Ability
+from ..settings import BOT_USERNAME, TESTING, RESYNC
 
 
 class DiscordBot(discord.Client):
@@ -18,7 +19,7 @@ class DiscordBot(discord.Client):
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
         error = sys.exc_info()
         error_message = error[1]
-        trace = error[2]
+        # trace = error[2]
         print(error_message)
 
     async def on_message(self, discord_message):
@@ -46,7 +47,7 @@ class DiscordBot(discord.Client):
             return
         for guild in self.guilds:
             member = await self.get_self_member(guild)
-            await message.send_message(member, f'{self.user.name} has come out of torpor.')
+            await event_handlers.send_message(member, f'{self.user.name} has come out of torpor.')
 
     async def get_self_member(self, guild: discord.Guild):
         member = await guild.query_members(user_ids=[self.user.id])
@@ -55,13 +56,13 @@ class DiscordBot(discord.Client):
         return member[0]
 
 
-intents = discord.Intents.default()
-intents.messages = True
-intents.guilds = True
-intents.presences = True
-intents.members = True
-intents.message_content = True
-discord_bot = DiscordBot(intents=intents)
+bot_intents = discord.Intents.default()
+bot_intents.messages = True
+bot_intents.guilds = True
+bot_intents.presences = True
+bot_intents.members = True
+bot_intents.message_content = True
+discord_bot = DiscordBot(intents=bot_intents)
 
 
 @discord_bot.tree.command()
@@ -82,7 +83,7 @@ async def roll(
         specialized: Optional[bool] = False,
         willpowerused: Optional[bool] = False,
         target: Optional[discord.Member] = None):
-    return await commands.handle_roll(
+    return await event_handlers.handle_roll(
         client=discord_bot,
         interaction=interaction,
         difficulty=difficulty,
@@ -102,9 +103,22 @@ async def roll(
 )
 async def setbotchannel(interaction: discord.Interaction, channel: discord.TextChannel):
     member = await discord_bot.get_self_member(interaction.guild)
-    await commands.set_bot_channel(
+    await event_handlers.set_bot_channel(
         member,
         interaction,
         channel
     )
 
+
+# @discord_bot.tree.command()
+# @app_commands.describe(
+#     create_challenge='Creates a challenge you want a player to respond to',
+#     player='The player you wish to take part in the challenge',
+#     attribute='The attribute for the challenge',
+#     ability='The ability (talent, skill, knowledge) for the challenge'
+# )
+# async def create_challenge(interaction: discord.Interaction,
+#                            player: discord.Member,
+#                            attribute: Attribute,
+#                            ability: Ability):
+#     challenge_creator = interaction.user

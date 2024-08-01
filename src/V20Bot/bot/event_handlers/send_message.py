@@ -1,9 +1,5 @@
-from typing import List
-
 import discord
 
-def handle_message(message):
-    pass
 
 async def send_message(member: discord.Member, message):
 
