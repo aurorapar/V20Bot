@@ -4,8 +4,8 @@ from typing import Optional, Any
 import discord
 from discord import app_commands
 
+from ..bot import event_handlers
 from ..character import Attribute, Ability
-import event_handlers
 from ..settings import BOT_USERNAME, TESTING, RESYNC
 
 
@@ -110,15 +110,15 @@ async def setbotchannel(interaction: discord.Interaction, channel: discord.TextC
     )
 
 
-@discord_bot.tree.command()
-@app_commands.describe(
-    create_challenge='Creates a challenge you want a player to respond to',
-    player='The player you wish to take part in the challenge',
-    attribute='The attribute for the challenge',
-    ability='The ability (talent, skill, knowledge) for the challenge'
-)
-async def create_challenge(interaction: discord.Interaction,
-                           player: discord.Member,
-                           attribute: Attribute,
-                           ability: Ability):
-    challenge_creator = interaction.user
+# @discord_bot.tree.command()
+# @app_commands.describe(
+#     create_challenge='Creates a challenge you want a player to respond to',
+#     player='The player you wish to take part in the challenge',
+#     attribute='The attribute for the challenge',
+#     ability='The ability (talent, skill, knowledge) for the challenge'
+# )
+# async def create_challenge(interaction: discord.Interaction,
+#                            player: discord.Member,
+#                            attribute: Attribute,
+#                            ability: Ability):
+#     challenge_creator = interaction.user
