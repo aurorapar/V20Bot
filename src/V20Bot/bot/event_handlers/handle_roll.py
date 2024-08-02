@@ -3,7 +3,7 @@ from typing import Optional
 import discord
 
 from ...dtos import ResultDetails
-from ...helpers.helpers import number_to_emoji
+from ...helpers.__init__ import number_to_emoji
 from ...messages import SuccessFrame
 
 
@@ -25,19 +25,17 @@ async def handle_roll(client: discord.Client, interaction: discord.Interaction, 
         return
 
     result_status = ResultDetails(
-        player=interaction.user,
+        player=interaction.user.guild.get_member(interaction.user.id),
         DicePool=dice_pool,
         Difficulty=difficulty,
         Specialized=specialized,
         Willpower=willpower_used,
-        AutoSuccesses=auto_successes
+        AutoSuccesses=auto_successes,
+        Target=target
     )
     result_status.calculate_results()
-    title = f"{interaction.user.display_name}'s Challenge" \
-        if not target else \
-        f"{interaction.user.display_name} Challenged {target.display_name}"
-    result_message = SuccessFrame(title=title, description="")
-    result_message.set_fields(result_status)
+
+    result_message = SuccessFrame(challenge_result=result_status)
 
     result_icons = [number_to_emoji(result) for result in result_status.Rolls if result <= 10]
     result_icons += [number_to_emoji(int(digit)) for result in result_status.Rolls if result > 10 for digit in

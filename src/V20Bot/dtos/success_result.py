@@ -14,20 +14,20 @@ class ResultStatus(Enum):
 
 class ResultDetails:
 
-    def __init__(self, player: discord.User, **kwargs):
-        self.Player = player
-        self.Calculated = False
-        self.Rolls = None
-        self.Specialized = False
-        self.DicePool = 0
-        self.Successes = 0
-        self.Botches = 0
-        self.Explosions = 0
-        self.Difficulty = 0
-        self.Willpower = False
-        self.AutoSuccesses = 0
-        self.Result = None
-
+    def __init__(self, player: discord.Member, **kwargs):
+        self.Player: discord.Member = player
+        self.Calculated: bool = False
+        self.Rolls: list[int] = []
+        self.Specialized: bool = False
+        self.DicePool:int  = 0
+        self.Successes: int = 0
+        self.Botches: int = 0
+        self.Explosions: int = 0
+        self.Difficulty: int = 0
+        self.Willpower: bool = False
+        self.AutoSuccesses: int = 0
+        self.Result: str = ""
+        self.Target: discord.User = None
         self.__dict__.update(kwargs)
 
     def set_results(self, success_result: ResultStatus):
