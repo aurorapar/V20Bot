@@ -74,7 +74,7 @@ class ResultDetails:
         self.Successes = len([result for result in self.Rolls if result >= self.Difficulty]) + self.Explosions
 
         willpower_needed = self.Botches > self.Successes and self.Willpower
-        self.Successes = max(int(self.Willpower), self.Successes - self.Botches)
+        self.Successes = max(int(self.Willpower), self.Successes - self.Botches + self.Willpower)
 
         self.Calculated = True
 
