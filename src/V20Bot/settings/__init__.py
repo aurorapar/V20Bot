@@ -1,12 +1,12 @@
 
 BOT_TOKEN = None
 # BOT_TOKEN = "EXAMPLE_TOKEN"
-BOT_USERNAME = "VTM TESTING"
+BOT_USERNAME = "VTM Bot"
 TESTING = True
 SYNC_ON_MESSAGE = False
 RESYNC_ALLOWED = True
 
-roll_icons = {
+dice_roll_icons = {
     '0': "Are you cheating? Theres no way you have 20+ in your pool",
     '1': "<:silver1:1268448911027339307>",
     '2': "<:silver2:1268448912738488360>",
