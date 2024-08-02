@@ -6,7 +6,7 @@ from discord import app_commands
 
 from ..bot import event_handlers
 from ..character import Attribute, Ability
-from ..settings import BOT_USERNAME, TESTING, RESYNC
+from ..settings import BOT_USERNAME, TESTING, SYNC_ON_MESSAGE, RESYNC_ALLOWED
 
 
 class DiscordBot(discord.Client):
@@ -26,7 +26,7 @@ class DiscordBot(discord.Client):
         if discord_message.content.lower() == 'resync':
             if len([role for role in discord_message.author.roles if role.permissions.administrator]):
                 await discord_message.channel.delete_messages(messages=[discord_message])
-                if not RESYNC:
+                if not RESYNC_ALLOWED:
                     await discord_message.author.send(content='Resyncing has been disabled.')
                     return
                 if self.synced:
@@ -36,7 +36,7 @@ class DiscordBot(discord.Client):
                 await self.tree.sync()
                 await discord_message.author.send(content='Resynced!')
                 self.synced = True
-        if not self.synced and RESYNC:
+        if not self.synced and SYNC_ON_MESSAGE:
             await self.tree.sync()
             print(f"Tree synced!")
             self.synced = True
@@ -109,6 +109,17 @@ async def setbotchannel(interaction: discord.Interaction, channel: discord.TextC
         channel
     )
 
+
+@discord_bot.tree.command()
+@app_commands.allowed_contexts(guilds=True)
+@app_commands.describe(
+    link="The link of your character image. Don't user imgur, they don't like Discord. Try https://postimg.cc"
+)
+async def setcharacterimage(interaction: discord.Interaction, link: str):
+    await event_handlers.set_character_image(
+        interaction,
+        link
+    )
 
 # @discord_bot.tree.command()
 # @app_commands.describe(

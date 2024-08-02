@@ -1,3 +1,5 @@
 .idea/
 *.pyc
 __pycache__/
+*.json
+src/V20Bot/user_data
