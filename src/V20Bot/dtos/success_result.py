@@ -78,7 +78,7 @@ class ResultDetails:
 
         self.Calculated = True
 
-        if not self.Successes and self.Botches:
+        if not self.Successes and self.Botches > self.Successes:
             self.set_results(ResultStatus.BOTCH)
             return
 
