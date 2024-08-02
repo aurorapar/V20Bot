@@ -1,0 +1,6 @@
+
+
+Spendable = {
+    "Blood",
+    "Willpower"
+}

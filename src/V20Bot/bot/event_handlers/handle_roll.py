@@ -7,7 +7,7 @@ from ...helpers.__init__ import number_to_emoji
 from ...messages import SuccessFrame
 
 
-async def handle_roll(client: discord.Client, interaction: discord.Interaction, dice_pool: int, difficulty: int,
+async def handle_roll(interaction: discord.Interaction, dice_pool: int, difficulty: int,
                       auto_successes: Optional[int] = 0, specialized: Optional[bool] = False,
                       willpower_used: Optional[bool] = False, target: Optional[discord.Member] = None):
 

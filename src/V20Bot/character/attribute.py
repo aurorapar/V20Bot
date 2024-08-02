@@ -1,0 +1,6 @@
+
+Attribute = {
+    "Strength",
+    "Dexterity",
+    "Stamina"
+}
