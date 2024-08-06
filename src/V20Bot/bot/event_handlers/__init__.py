@@ -3,3 +3,4 @@ from ..event_handlers.handle_roll import handle_roll
 from ..event_handlers.send_message import send_message
 from ..event_handlers.set_bot_channel import set_bot_channel
 from ..event_handlers.set_character_image import set_character_image
+from ..event_handlers.get_player_dicepool import get_player_dicepool

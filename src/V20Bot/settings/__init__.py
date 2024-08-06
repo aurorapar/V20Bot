@@ -1,10 +1,9 @@
 
-BOT_TOKEN = None
-# BOT_TOKEN = "EXAMPLE_TOKEN"
 BOT_USERNAME = "VTM Bot"
-TESTING = True
+ANNOUNCE_ONLINE = False
+TESTING = False
 SYNC_ON_MESSAGE = False
-RESYNC_ALLOWED = True
+RESYNC_ALLOWED = False
 
 dice_roll_icons = {
     '0': "Are you cheating? Theres no way you have 20+ in your pool",

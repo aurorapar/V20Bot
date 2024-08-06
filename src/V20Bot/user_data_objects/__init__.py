@@ -55,3 +55,8 @@ class UserData:
         self.__initialize_user()
         self.UserData[data_key.value] = value
         self.__save_data()
+
+    def set_character_sheet(self, sheet_details):
+        for k, v in sheet_details.items():
+            self.UserData[k] = v
+        self.__save_data()

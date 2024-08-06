@@ -1,6 +1,12 @@
 
-Attribute = {
+Attribute = [
     "Strength",
     "Dexterity",
-    "Stamina"
-}
+    "Stamina",
+    "Charisma",
+    "Manipulation",
+    "Appearance",
+    "Perception",
+    "Intelligence",
+    "Wits"
+]

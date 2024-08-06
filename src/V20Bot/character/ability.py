@@ -1,6 +1,6 @@
 
 
-Ability = {
+Ability = [
     "Alertness",
     "Athletics",
     "Awareness",
@@ -11,7 +11,7 @@ Ability = {
     "Leadership",
     "Streetwise",
     "Subterfuge",
-    "Hobby Talent",
+#    "Hobby Talent",
     "Animal Ken",
     "Crafts",
     "Drive",
@@ -32,4 +32,4 @@ Ability = {
     "Politics",
     "Science",
     "Technology"
-}
+]
