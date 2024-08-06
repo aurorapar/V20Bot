@@ -14,7 +14,7 @@ class ImportSheet(commands.Cog):
     @app_commands.command(description="Upload your character sheet for challenge automation")
     @app_commands.allowed_contexts(guilds=True)
     @app_commands.describe(
-        link="The link to your character sheet"
+        pdf="Your sheet"
     )
-    async def importsheet(self, interaction: discord.Interaction, link: str):
-        await import_sheet(interaction, link)
+    async def importsheet(self, interaction: discord.Interaction, pdf: discord.Attachment):
+        await import_sheet(interaction, pdf)
