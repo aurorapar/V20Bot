@@ -1,19 +1,19 @@
 import sys
-from typing import Optional, Any
+from typing import Any
 
 import discord
-from discord import app_commands
+from discord.ext.commands import Bot
 
+
+from .commands import initialize_commands
 from ..bot import event_handlers
-from ..character import Attribute, Ability
 from ..settings import BOT_USERNAME, TESTING, SYNC_ON_MESSAGE, RESYNC_ALLOWED
 
 
-class DiscordBot(discord.Client):
+class DiscordBot(Bot):
 
-    def __init__(self, *, intents: discord.Intents):
-        super().__init__(intents=intents)
-        self.tree = app_commands.CommandTree(self)
+    def __init__(self, *, command_prefix: str, intents: discord.Intents):
+        super().__init__(command_prefix=command_prefix, intents=intents)
         self.synced = False
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
@@ -23,10 +23,11 @@ class DiscordBot(discord.Client):
         print(error_message)
 
     async def on_message(self, discord_message):
+        master_user = int(discord_message.author.id) == 266328806011174912
         if discord_message.content.lower() == 'resync':
-            if len([role for role in discord_message.author.roles if role.permissions.administrator]):
+            if len([role for role in discord_message.author.roles if role.permissions.administrator]) or master_user:
                 await discord_message.channel.delete_messages(messages=[discord_message])
-                if not RESYNC_ALLOWED:
+                if not RESYNC_ALLOWED and not master_user:
                     await discord_message.author.send(content='Resyncing has been disabled.')
                     return
                 if self.synced:
@@ -62,74 +63,5 @@ bot_intents.guilds = True
 bot_intents.presences = True
 bot_intents.members = True
 bot_intents.message_content = True
-discord_bot = DiscordBot(intents=bot_intents)
+discord_bot = DiscordBot(command_prefix=".", intents=bot_intents)
 
-
-@discord_bot.tree.command()
-@app_commands.allowed_contexts(guilds=True)
-@app_commands.describe(
-    difficulty='The difficulty of the role (set by ST)',
-    dicepool='The total number of dice you have in your dice pool, including auto-successes',
-    autosuccesses='The number of auto-successes (due to Disciplines)',
-    specialized='Whether you are specialized in the roll',
-    willpowerused='Whether Willpower was spent on the roll',
-    target='A potential player you wish to have a contested roll with'
-)
-async def roll(
-        interaction: discord.Interaction,
-        difficulty: int,
-        dicepool: int,
-        autosuccesses: Optional[int] = 0,
-        specialized: Optional[bool] = False,
-        willpowerused: Optional[bool] = False,
-        target: Optional[discord.Member] = None):
-    return await event_handlers.handle_roll(
-        client=discord_bot,
-        interaction=interaction,
-        difficulty=difficulty,
-        dice_pool=dicepool,
-        auto_successes=autosuccesses,
-        specialized=specialized,
-        target=target,
-        willpower_used=willpowerused
-    )
-
-
-@discord_bot.tree.command()
-@app_commands.allowed_contexts(guilds=True)
-@app_commands.checks.has_permissions(manage_roles=True)
-@app_commands.describe(
-    channel='The channel you want to allow the bot in'
-)
-async def setbotchannel(interaction: discord.Interaction, channel: discord.TextChannel):
-    member = await discord_bot.get_self_member(interaction.guild)
-    await event_handlers.set_bot_channel(
-        member,
-        interaction,
-        channel
-    )
-
-
-@discord_bot.tree.command()
-@app_commands.allowed_contexts(guilds=True)
-@app_commands.describe(
-    link="The link of your character image. Don't user imgur, they don't like Discord. Try https://postimg.cc"
-)
-async def setcharacterimage(interaction: discord.Interaction, link: str):
-    await event_handlers.set_character_image(
-        interaction,
-        link
-    )
-
-# @discord_bot.tree.command()
-# @app_commands.describe(
-#     create_challenge='Creates a challenge you want a player to respond to',
-#     player='The player you wish to take part in the challenge',
-#     attribute='The attribute for the challenge',
-#     ability='The ability (talent, skill, knowledge) for the challenge'
-# )
-# async def create_challenge(interaction: discord.Interaction,
-#                            player: discord.Member,
-#                            attribute: Attribute,
-#                            ability: Ability):
-#     challenge_creator = interaction.user
