@@ -7,7 +7,7 @@ from discord.ext.commands import Bot
 
 from .commands import initialize_commands
 from ..bot import event_handlers
-from ..settings import BOT_USERNAME, TESTING, SYNC_ON_MESSAGE, RESYNC_ALLOWED
+from ..settings import BOT_USERNAME, ANNOUNCE_ONLINE, SYNC_ON_MESSAGE, RESYNC_ALLOWED
 
 
 class DiscordBot(Bot):
@@ -33,8 +33,10 @@ class DiscordBot(Bot):
                 if self.synced:
                     await discord_message.author.send(content='The bot has already synced.')
                     return
+                print('Resyncing....')
                 await discord_message.author.send(content='Resyncing....')
                 await self.tree.sync()
+                print('Resynced')
                 await discord_message.author.send(content='Resynced!')
                 self.synced = True
         if not self.synced and SYNC_ON_MESSAGE:
@@ -44,11 +46,10 @@ class DiscordBot(Bot):
 
     async def on_ready(self):
         await self.user.edit(username=BOT_USERNAME)
-        if TESTING:
-            return
-        for guild in self.guilds:
-            member = await self.get_self_member(guild)
-            await event_handlers.send_message(member, f'{self.user.name} has come out of torpor.')
+        if ANNOUNCE_ONLINE:
+            for guild in self.guilds:
+                member = await self.get_self_member(guild)
+                await event_handlers.send_message(member, f'{self.user.name} has come out of torpor.')
 
     async def get_self_member(self, guild: discord.Guild):
         member = await guild.query_members(user_ids=[self.user.id])
