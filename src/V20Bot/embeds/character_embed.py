@@ -6,12 +6,12 @@ from ..character.ability import Ability
 from ..character.discipline import Discipline
 
 
-class CharacterFrame(discord.Embed):
+class CharacterEmbed(discord.Embed):
     def __init__(self, user: discord.Member, color: bytes = 0x700000):
         user_data = UserData(user.id)
         sheet_details = user_data.UserData
         sheet_details["Name"] = sheet_details["Name"] if "Name" in sheet_details.keys() else user.display_name
-        super(CharacterFrame, self).__init__(title=sheet_details["Name"], description="", color=color)
+        super(CharacterEmbed, self).__init__(title=sheet_details["Name"], description="", color=color)
 
         character_image = user_data.get_data_value(UserDataKeys.THUMBNAIL_LINK)
         self.set_author(name=user.display_name, icon_url=user.avatar.url)

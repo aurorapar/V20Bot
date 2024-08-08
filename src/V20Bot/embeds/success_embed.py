@@ -5,13 +5,13 @@ from ..user_data_objects import UserData
 from ..user_data_objects import UserDataKeys
 
 
-class SuccessFrame(discord.Embed):
+class SuccessEmbed(discord.Embed):
 
     def __init__(self, challenge_result: ResultDetails, color: bytes = 0x700000):
         title = f"{challenge_result.Player.display_name}'s Challenge" \
                 if not challenge_result.Target else \
                 f"{challenge_result.Player.display_name} Challenged {challenge_result.Target.display_name}"
-        super(SuccessFrame, self).__init__(title=title, description="", color=color)
+        super(SuccessEmbed, self).__init__(title=title, description="", color=color)
         self.__set_fields(challenge_result)
 
     def set_values(self, **kwargs):

@@ -1,6 +1,6 @@
 import discord
 
-from ...messages.character_frame import CharacterFrame
+from ...embeds.character_embed import CharacterEmbed
 from ...user_data_objects import UserData
 
 
@@ -10,5 +10,5 @@ async def display_character(interaction: discord.Interaction):
         await interaction.response.send_message(ephemeral=True,
                                                 content="You haven't uploaded your sheet yet. Use /importsheet")
     else:
-        character = CharacterFrame(interaction.user)
+        character = CharacterEmbed(interaction.user)
         await interaction.response.send_message(ephemeral=True, embed=character)

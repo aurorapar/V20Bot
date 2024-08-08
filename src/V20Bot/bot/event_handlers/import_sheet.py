@@ -3,7 +3,7 @@ import urllib.request
 import discord
 from pypdf import PdfReader, errors
 
-from ...messages.character_frame import CharacterFrame
+from ...embeds.character_embed import CharacterEmbed
 from ...PdfExtractor import retrieve_sheet_details
 from ...user_data_objects import UserData
 
@@ -18,7 +18,7 @@ async def import_sheet(interaction: discord.Interaction, pdf: discord.Attachment
         return
 
     user_data.set_character_sheet(retrieve_sheet_details(TEMP_SHEET_FILE))
-    example = CharacterFrame(interaction.user)
+    example = CharacterEmbed(interaction.user)
     await interaction.response.send_message(ephemeral=True,
                                             content="You have updated your sheet!", embed=example)
 

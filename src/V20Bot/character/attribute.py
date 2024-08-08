@@ -10,3 +10,9 @@ Attribute = [
     "Intelligence",
     "Wits"
 ]
+
+PhysicalAttribute = [
+    "Strength",
+    "Dexterity",
+    "Stamina"
+]

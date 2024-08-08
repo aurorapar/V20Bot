@@ -33,3 +33,9 @@ Discipline = [
     'Vicissitude',
     'Visceratika'
 ]
+
+PhysicalDiscipline = [
+    "Potence",
+    "Celerity",
+    "Fortitude"
+]

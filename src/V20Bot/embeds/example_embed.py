@@ -3,9 +3,9 @@ import discord
 from ..user_data_objects import UserData, UserDataKeys
 
 
-class ExampleFrame(discord.Embed):
+class ExampleEmbed(discord.Embed):
     def __init__(self, user: discord.Member, color: bytes = 0x700000):
-        super(ExampleFrame, self).__init__(title="Example Character Image", description="", color=color)
+        super(ExampleEmbed, self).__init__(title="Example Character Image", description="", color=color)
 
         character_image = UserData(user.id).get_data_value(UserDataKeys.THUMBNAIL_LINK)
         self.set_author(name=user.display_name, icon_url=user.avatar.url)

@@ -4,7 +4,7 @@ import discord
 
 from ...dtos import ResultDetails
 from ...helpers.__init__ import number_to_emoji
-from ...messages import SuccessFrame
+from ...embeds import SuccessEmbed
 
 
 async def handle_roll(interaction: discord.Interaction, dice_pool: int, difficulty: int,
@@ -35,7 +35,7 @@ async def handle_roll(interaction: discord.Interaction, dice_pool: int, difficul
     )
     result_status.calculate_results()
 
-    result_message = SuccessFrame(challenge_result=result_status)
+    result_message = SuccessEmbed(challenge_result=result_status)
 
     result_icons = [number_to_emoji(result) for result in result_status.Rolls if result <= 10]
     result_icons += [number_to_emoji(int(digit)) for result in result_status.Rolls if result > 10 for digit in

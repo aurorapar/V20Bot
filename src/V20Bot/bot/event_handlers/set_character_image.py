@@ -4,14 +4,14 @@ from io import BytesIO
 import discord
 from filetype import guess
 
-from ...messages import ExampleFrame
+from ...embeds import ExampleEmbed
 from ...user_data_objects import UserData, UserDataKeys
 
 
 async def set_character_image(interaction: discord.Interaction, link: str):
     user_data = UserData(interaction.user.id)
     if user_data.get_data_value(UserDataKeys.THUMBNAIL_LINK) == link:
-        example = ExampleFrame(interaction.user)
+        example = ExampleEmbed(interaction.user)
         await interaction.response.send_message(ephemeral=True, embed=example,
                                                 content="Your character image is already using that link")
         return
@@ -22,7 +22,7 @@ async def set_character_image(interaction: discord.Interaction, link: str):
         return
 
     user_data.set_user_data(UserDataKeys.THUMBNAIL_LINK, link)
-    example = ExampleFrame(interaction.user)
+    example = ExampleEmbed(interaction.user)
     await interaction.response.send_message(ephemeral=True,
                                             content="You have changed your Character image!", embed=example)
 

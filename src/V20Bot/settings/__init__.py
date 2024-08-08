@@ -1,9 +1,9 @@
 
 BOT_USERNAME = "VTM Bot"
 ANNOUNCE_ONLINE = False
-TESTING = False
+TESTING = True
 SYNC_ON_MESSAGE = False
-RESYNC_ALLOWED = False
+RESYNC_ALLOWED = True
 
 dice_roll_icons = {
     '0': "Are you cheating? Theres no way you have 20+ in your pool",
@@ -18,3 +18,8 @@ dice_roll_icons = {
     '9': "<:silver9:1268448919612952609>",
     '10': "<:silver10:1268448950206201987>"
 }
+
+willpower_icon = "<:willpower_ticket:1270905431774068901>"
+
+DICE_POOL_MODIFIER_RANGE = 3
+PHYSICAL_ATTRIBUTE_BLOOD_SPEND_CAP = 3
