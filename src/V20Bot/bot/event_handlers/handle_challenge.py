@@ -35,9 +35,12 @@ async def handle_challenge(interaction: discord.Interaction, attribute: str, abi
 
     pre_message = f"Select the difficulty, then click the buttons below to spend Willpower and Blood, then the checkmark once you're finished.\n\n"
     challenge_view = ChallengeView(interaction.user, attribute=attribute, ability=ability, discipline=discipline)
-    await interaction.response.send_message(content=get_message(pre_message), ephemeral=True, view=challenge_view)
-    challenge_view.edit_original_response = interaction.edit_original_response
-    await challenge_view.edit_original_response(content=challenge_view.base_message)
+    try:
+        await interaction.response.send_message(content=get_message(pre_message), ephemeral=True, view=challenge_view)
+        challenge_view.edit_original_response = interaction.edit_original_response
+        await challenge_view.edit_original_response(content=challenge_view.base_message)
+    except asyncio.Timeout:
+        await interaction.followup(content=f"You didn't respond within the time limit ({challenge_view.timeout}s)")
 
     # await update_challenge(
     #     content=get_message("Enter your dicepool\n(don't include autosuccesses)\n(Type 'autosuccesses X')"))

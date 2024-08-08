@@ -1,6 +1,6 @@
 import discord
 
-from discord.ui import Button, Select
+from discord.ui import Button, Select, TextInput
 
 from ..character.attribute import PhysicalAttribute
 from ..character.discipline import PhysicalDiscipline
@@ -24,6 +24,7 @@ class ChallengeView(discord.ui.View):
         self.discipline_activated = False
         self.adjustment = 0
         self.blood_spent = self.physical_spends + int(self.discipline_activated)
+        self.specialized = False
 
         self.difficulty = 0
         self.dice_pool =\
@@ -32,8 +33,9 @@ class ChallengeView(discord.ui.View):
             (self.user.UserData[discipline] if discipline in self.user.UserData.keys() else 0)
         self.auto_successes = 0
         self.base_message = f"Difficulty: {self.difficulty}\tDice Pool: {self.dice_pool}\n" + \
-                            f"Willpower Spent: {self.willpower_spent}" + \
-                            f"\tAutoSuccesses: {self.auto_successes}\tBlood Spent: {self.blood_spent}\n\n"
+                            f"Willpower Spent: {self.willpower_spent}\tSpecialized: {'No' if not self.specialized else 'Yes'}\n" + \
+                            f"\tAutoSuccesses: {self.auto_successes}\tBlood Spent: {self.blood_spent}\n\n" + \
+                            f"Select the difficulty, then click the buttons below to spend Willpower and Blood, then the checkmark once you're finished.\n\n"
 
         self.row = 0
 
@@ -63,6 +65,11 @@ class ChallengeView(discord.ui.View):
             self.discipline_button.callback = self.activate_discipline
             self.add_item(self.discipline_button)
 
+        self.specialization_entry = Button(label="Specialized", row=self.row, custom_id="specialization-button",
+                                              style=discord.ButtonStyle.primary, emoji="👩‍⚕️")
+        self.specialization_entry.callback = self.specialization_handler
+        self.add_item(self.specialization_entry)
+
         if attribute in PhysicalAttribute and attribute in self.user.UserData.keys() and self.user.UserData[attribute] > 0:
             self.row += 1
             self.blood_buttons = []
@@ -81,6 +88,9 @@ class ChallengeView(discord.ui.View):
 
         self.update_message_values()
 
+        self.components_list = [self.difficulty_select, self.additional_modifier_menu, self.willpower_button,
+                                self.discipline_button, self.blood_buttons, self.activation_button]
+
     def update_message_values(self):
         self.blood_spent = self.physical_spends + int(self.discipline_activated)
 
@@ -95,7 +105,7 @@ class ChallengeView(discord.ui.View):
             (self.user.UserData[self.discipline] if self.discipline in self.user.UserData.keys() and self.discipline_activated else 0)
         )
 
-    async def update_message(self):
+    async def update_message(self, addition="", *args, **kwargs):
         self.blood_spent = self.physical_spends + int(self.discipline_activated)
 
         self.dice_pool = (
@@ -111,10 +121,10 @@ class ChallengeView(discord.ui.View):
         )
 
         self.base_message = f"Difficulty: {self.difficulty}\tDice Pool: {self.dice_pool}\n" + \
-                            f"Willpower Spent: {self.willpower_spent}" + \
+                            f"Willpower Spent: {self.willpower_spent}\tSpecialized: {'No' if not self.specialized else self.specialized}\n" + \
                             f"\tAutoSuccesses: {self.auto_successes}\tBlood Spent: {self.blood_spent}\n\n" + \
-                            f"Select the difficulty, then click the buttons below to spend Willpower and Blood, then the checkmark once you're finished.\n\n"
-        await self.edit_original_response(content=self.base_message)
+                            (addition if addition else f"Select the difficulty, then click the buttons below to spend Willpower and Blood, then the checkmark once you're finished.\n\n")
+        await self.edit_original_response(content=self.base_message, *args, **kwargs)
 
     async def willpower_button_callback(self, interaction):
         self.willpower_spent = not self.willpower_spent
@@ -143,17 +153,28 @@ class ChallengeView(discord.ui.View):
         await interaction.response.send_message(f"You are {'not ' if not self.discipline_activated else ''}spending Blood on {self.discipline}", ephemeral=True)
         await self.update_message()
 
+    async def specialization_handler(self, interaction):
+        self.specialized = not self.specialized
+        await interaction.response.send_message(f"You are {'not ' if not self.specialized else ''}Specialized", ephemeral=True)
+        await self.update_message()
+
     async def adjust_dice_pool(self, interaction):
-        self.adjustment = int(interaction.data.values()[0].split(" ")[-1])
+        self.adjustment = int(list(interaction.data.values())[0][0])
+        self.additional_modifier_menu.placeholder = f"Dice Pool Adjustment of {self.adjustment}"
         await interaction.response.send_message(f"New Dice Pool adjustment of {self.adjustment}")
+        await self.update_message()
 
     async def set_difficulty(self, interaction):
-        print(interaction.data.values())
-        self.difficulty = int(interaction.data.values()[0].split(" ")[-1])
-        await interaction.response.send_message(f"New Difficulty of {self.adjustment}")
+        self.difficulty = int(list(interaction.data.values())[0][0])
+        self.difficulty_select.placeholder = f"Difficulty {self.difficulty}"
+        await interaction.response.send_message(f"New Difficulty of {self.difficulty}")
+        await self.update_message()
 
-    async def finished_selecting(self, button, interaction):
-        for component in [self.difficulty_select,self.additional_modifier_menu, self.discipline_button,
-                          self.activation_button, self.willpower_button] + self.blood_buttons:
-            component.disabled = True
-        await interaction.response.send_message(f"You have locked in your choices!", ephemeral=True)
+    async def finished_selecting(self, interaction):
+        if self.difficulty < 1:
+            await interaction.response.send_message(content=f"You can't finish without selecting the difficulty.", ephemeral=True)
+            return
+        if self.dice_pool < 1:
+            await interaction.response.send_message(content=f"You can't engage in the challenge without a dice pool.", ephemeral=True)
+            return
+        await self.update_message(addition=f"You have locked in your choices!", view=None)
